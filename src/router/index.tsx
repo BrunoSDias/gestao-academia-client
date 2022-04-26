@@ -5,6 +5,9 @@ import { Contexts } from '@contexts/index';
 
 import theme from '../theme';
 
+import { AuthRouter } from './auth.router';
+import { GuestRouter } from './guest.router';
+
 import { Home } from "@pages/Home";
 import { Login } from "@pages/Login";
 
@@ -14,8 +17,8 @@ const Router = () => (
       <CssBaseline />
       <Contexts>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<AuthRouter component={Home} />} />
+          <Route path="/login" element={<GuestRouter component={Login} />} />
         </Routes>
       </Contexts>
     </ThemeProvider>
