@@ -9,6 +9,7 @@ import { AuthRouter } from './auth.router';
 import { GuestRouter } from './guest.router';
 
 import { Home } from "@pages/Home";
+import { Historico } from "@pages/Historico";
 import { Login } from "@pages/Login";
 
 const Router = () => (
@@ -18,6 +19,7 @@ const Router = () => (
       <Contexts>
         <Routes>
           <Route path="/" element={<AuthRouter component={Home} />} />
+          <Route path="/historico" element={<AuthRouter component={Historico} />} />
           <Route path="/login" element={<GuestRouter component={Login} />} />
         </Routes>
       </Contexts>
