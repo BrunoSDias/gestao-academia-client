@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo} from 'react';
 import { TreinoCliente } from '@static/types';
-import { Divider, ListItem, ListItemButton, ListItemText, Collapse, List } from '@mui/material'
+import { Divider, ListItem, ListItemButton, ListItemText, Collapse, List, Typography, Box } from '@mui/material'
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { AndamentoExercicioComponent } from '@components/AndamentoExercicioComponent';
@@ -14,6 +14,12 @@ export const TreinoClienteComponent: React.FC<TreinoClienteComponentProps> = ({ 
 
   const toogleOption = useCallback(() => {
     setOpen(prevState => !prevState)
+  }, [])
+
+  const titleTreinadors = useMemo(() => {
+    if (!treinoCliente.treinadors?.length) return "";
+
+    return treinoCliente.treinadors.length > 1 ? "Treinadores" : "Treinador"
   }, [])
 
   return(
@@ -30,6 +36,18 @@ export const TreinoClienteComponent: React.FC<TreinoClienteComponentProps> = ({ 
         </ListItemButton>
       </ListItem>
       <Collapse in={open} timeout="auto" unmountOnExit>
+        {titleTreinadors && (
+          <Box sx={(theme) => ({
+            border: '1px solid',
+            borderColor: theme.palette.primary.main,
+            textAlign: 'center',
+            padding: 2,
+            margin: 1
+          })}>
+            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>{titleTreinadors}</Typography>
+            <Typography>{treinoCliente.treinadors?.join(" | ")}</Typography>
+          </Box>
+        )}
         <List component="div" disablePadding>
           {treinoCliente.andamento_exercicios?.map(andamentoExercicio => (
             <AndamentoExercicioComponent andamentoExercicio={andamentoExercicio} />

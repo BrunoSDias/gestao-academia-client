@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useEffect, } from 'react';
 
-import { Paper, TextField, MenuItem, Stack, Box, Container, Button, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from '@mui/material';
+import { Paper, TextField, MenuItem, Stack, Box, Container, Button, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 
 import api from '@services/api';
+
+import { TabelaHistorico } from '@components/TabelaHistorico';
 
 import { useAuth } from '@contexts/AuthContext';
 
@@ -30,14 +32,18 @@ const diasSemana = [
 export const Historico: React.FC = () => {
   const [treinos, setTreinos] = useState<Treino[]>();
   const [exercicios, setExercicios] = useState<Exercicio[]>();
-  const [andamentoExercicios, setAndamentoExercicios] = useState<AndamentoExercicio[]>();
+  const [andamentoExercicios, setAndamentoExercicios] = useState<AndamentoExercicio[]>([]);
 
   const [treinoId, setTreinoId] = useState<number>();
   const [exercicioId, setExercicioId] = useState<number>();
   const [status, setStatus] = useState<string>('');
   const [diaSemana, setDiaSemana] = useState<string>('');
-  const [dataDe, setDataDe] = useState<Date>();
-  const [dataAte, setDataAte] = useState<Date>();
+  const [dataDe, setDataDe] = useState<Date | null>(null);
+  const [dataAte, setDataAte] = useState<Date | null>(null);
+
+  const [rowsCount, setRowsCount] = useState<number>(1);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  const [page, setPage] = useState<number>(0);
 
   const { cliente } = useAuth();
 
@@ -50,6 +56,9 @@ export const Historico: React.FC = () => {
       }
     })
     .then(res => {
+      if (res.headers['x-total-count']) {
+        setRowsCount(Number(res.headers['x-total-count']))
+      }
       setTreinos(res.data.treinos);
       setExercicios(res.data.exercicios);
       setAndamentoExercicios(res.data.andamento_exercicios);
@@ -60,7 +69,7 @@ export const Historico: React.FC = () => {
     loadHistorico();
   }, [loadHistorico]);
 
-  const filtrarHistorico = useCallback(() => {
+  const filtrarHistorico = useCallback((currentPage: number, currentRowsPerPage: number) => {
     if (!cliente) return;
 
     api.get(`/cliente/historicos/filter`, {
@@ -69,26 +78,43 @@ export const Historico: React.FC = () => {
         treino_id: treinoId,
         exercicio_id: exercicioId,
         status,
+        page: currentPage + 1,
+        per_page: currentRowsPerPage,
         dia_semana: diaSemana,
         data_de: dataDe,
         data_ate: dataAte
       }
     })
     .then(res => {
+      if (res.headers['x-total-count']) {
+        setRowsCount(Number(res.headers['x-total-count']))
+      }
       setAndamentoExercicios(res.data);
     })
   }, [cliente, treinoId, exercicioId, status, diaSemana, dataDe, dataAte])
 
+
+  const handleChangePage = useCallback((event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, currentPage: number) => {
+    setPage(currentPage)
+    filtrarHistorico(currentPage, rowsPerPage);
+  }, [filtrarHistorico, rowsPerPage]);
+
+  const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(Number(event.target.value))
+    filtrarHistorico(page, Number(event.target.value));
+  }, [filtrarHistorico, page]);
+
   return(
-    <Container>
+    <Container sx={{ marginBottom: 4 }}>
       <Box display="flex" justifyContent="center" sx={{  width: '100%', }}>
         <Paper sx={{ maxWidth: 450, width: '100%', padding: 2, marginTop: 4 }}>
           <Box
             display="flex"
             alignItems="center"
             justifyContent="center"
-            sx={{ flexDirection: 'column', paddingTop: 4 }}
+            sx={{ flexDirection: 'column'}}
           >
+            <Typography variant="h5"> Histórico </Typography>
             <TextField
               id="treino_id"
               select
@@ -170,7 +196,7 @@ export const Historico: React.FC = () => {
             <Button
               variant="contained"
               sx={{ marginTop: 2, fontSize: 18 }}
-              onClick={filtrarHistorico}
+              onClick={() => filtrarHistorico(page, rowsPerPage)}
             >
               Buscar
             </Button>
@@ -178,28 +204,14 @@ export const Historico: React.FC = () => {
         </Paper>
       </Box>
 
-      <Paper sx={{ width: '100%', overflow: 'hidden', marginTop: 4 }}>
-        <TableContainer sx={{ maxHeight: 440 }}>
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Treino</TableCell>
-                <TableCell>Exercicio</TableCell>
-                <TableCell>Data</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {andamentoExercicios?.map(andamentoExercicio => (
-                <TableRow hover>
-                  <TableCell>{andamentoExercicio.nome_treino}</TableCell>
-                  <TableCell>{andamentoExercicio.nome_exercicio}</TableCell>
-                  <TableCell>{andamentoExercicio.created_at}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+      <TabelaHistorico
+        andamentoExercicios={andamentoExercicios}
+        rowsCount={rowsCount}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        handleChangePage={handleChangePage}
+        handleChangeRowsPerPage={handleChangeRowsPerPage}
+      />
     </Container>
   )
 }

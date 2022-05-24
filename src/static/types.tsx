@@ -32,4 +32,5 @@ export interface TreinoCliente {
   cliente_id: string;
   nome: string;
   andamento_exercicios: AndamentoExercicio[];
+  treinadors?: string[];
 }
