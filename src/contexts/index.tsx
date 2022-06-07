@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { AuthProvider } from './AuthContext';
+import { SnackbarProvider } from './SnackbarContext';
 
 interface ContextProps {
   children: ReactNode;
@@ -7,8 +8,10 @@ interface ContextProps {
 
 export const Contexts = ({ children }: ContextProps): JSX.Element => {
   return (
-    <AuthProvider>
-      {children}
-    </AuthProvider>
+    <SnackbarProvider>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </SnackbarProvider>
   )
 }

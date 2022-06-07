@@ -21,11 +21,28 @@ import { diaDaSemana } from '@utils/diaDaSemana'
 import { TreinoClienteComponent } from '@components/TreinoClienteComponent';
 
 import api from '@services/api';
+import { consumer } from '@utils/websocket';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   const [treinoClientes, setTreinoClientes] = useState<TreinoCliente[]>();
   const { cliente } = useAuth();
+
+  useEffect(() => {
+    if (!cliente) return;
+
+    consumer.subscriptions.create({ channel: "ProgressoTreinoChannel", id: cliente.decoded_id }, {
+      initialized: () => {
+        console.log("Conexão websocket inicializada com sucesso")
+      },
+      connected: () => {
+        console.log("Conexão websocket conectada com sucesso")
+      },
+      received: (data) => {
+        setTreinoClientes(data)
+      }
+    })
+  }, [cliente])
   
   useEffect(() => {
     api.get('/cliente/treino_clientes')

@@ -1,5 +1,6 @@
 export interface Cliente {
   id: string;
+  decoded_id?: number;
   nome: string;
   email: string;
   whatsapp: string;

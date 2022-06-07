@@ -12,12 +12,15 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 
+import { useAuth } from '@contexts/AuthContext';
+
 import { useNavigate } from 'react-router'
 
 import { MobileHeader } from './MobileHeader';
 import { DesktopHeader } from './DesktopHeader';
 
 export const Header = () => {
+  const { signout } = useAuth();
   const navigate = useNavigate();
 
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -60,7 +63,7 @@ export const Header = () => {
               <MenuItem key='perfil' onClick={() => navigate('/perfil')}>
                 <Typography textAlign="center">Perfil</Typography>
               </MenuItem>
-              <MenuItem key='sair' onClick={() => navigate('/sair')}>
+              <MenuItem key='sair' onClick={signout}>
                 <Typography textAlign="center">Sair</Typography>
               </MenuItem>
             </Menu>

@@ -36,7 +36,7 @@ export const AndamentoExercicioComponent: React.FC<AndamentoExercicioComponentPr
     if (!andamentoExercicio.status) return;
 
     setStatus(andamentoExercicio.status);
-  }, [andamentoExercicio.status])
+  }, [andamentoExercicio])
 
   const statusColor = useMemo(() => {
     if (status === 'nao_realizado') {

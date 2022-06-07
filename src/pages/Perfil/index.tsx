@@ -12,23 +12,29 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '@contexts/AuthContext';
 
-export const Login: React.FC = () => {
-  const { signin } = useAuth();
+export const Perfil: React.FC = () => {
+  const { update, cliente } = useAuth();
   const [email, setEmail] = useState<string>();
   const [senha, setSenha] = useState<string>();
+  const [nome, setNome] = useState<string>();
+  const [whatsapp, setWhatsapp] = useState<string>();
+
   const [mostraSenha, setMostraSenha] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (!cliente) return;
+
+    setEmail(cliente.email);
+    setNome(cliente.nome);
+    setWhatsapp(cliente.whatsapp);
+
+  }, [cliente])
+
   const handleSubmit = useCallback(() => {
-    if (!email || !senha) return;
-
-    signin(email, senha);
-  }, [email, senha])
-
-  const onEnter = (e: { key: string; keyCode: number; }) => {
-    if (e.key === 'Enter' || e.keyCode === 13) {
-      handleSubmit();
-    }
-  }
+    if (!email && !senha && !nome && !whatsapp) return;
+    
+    update(email, senha, nome, whatsapp)
+  }, [email, senha, nome, whatsapp])
 
  return(
    <Container>
@@ -38,22 +44,35 @@ export const Login: React.FC = () => {
        marginLeft: 'auto',
        marginRight: 'auto',
      }}>
-       <Paper
-        elevation={3}
-        sx={{
-          padding: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-        onKeyDown={(e) => onEnter(e)}
-       >
+       <Paper elevation={3} sx={{
+         padding: 2,
+         display: 'flex',
+         flexDirection: 'column',
+         alignItems: 'center',
+         justifyContent: 'center'
+       }}>
          <Typography variant="h5">
-          Acesse sua conta
+          Perfil
          </Typography>
          <TextField 
           fullWidth
+          focused={!!nome}
+          value={nome}
+          margin="normal"
+          onChange={(e) => setNome(e.target.value)}
+          label="Nome"
+         />
+         <TextField 
+          fullWidth
+          focused={!!whatsapp}
+          value={whatsapp}
+          margin="normal"
+          onChange={(e) => setWhatsapp(e.target.value)}
+          label="Whatsapp"
+         />
+         <TextField 
+          fullWidth
+          focused={!!email}
           value={email}
           margin="normal"
           onChange={(e) => setEmail(e.target.value)}
@@ -81,7 +100,7 @@ export const Login: React.FC = () => {
           }}
          />
          <Button variant="outlined" color="secondary" onClick={handleSubmit}>
-            Entrar
+            Salvar
          </Button>
        </Paper>
      </Box>
