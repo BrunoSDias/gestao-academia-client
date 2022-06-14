@@ -45,9 +45,11 @@ export const Home: React.FC = () => {
   }, [cliente])
   
   useEffect(() => {
+    if (!cliente) return;
+
     api.get('/cliente/treino_clientes')
     .then(res => setTreinoClientes(res.data))
-  }, []);
+  }, [cliente]);
 
   return (
     <Box display="flex" justifyContent="center" sx={{ paddingTop: 4 }}>
